@@ -5,3 +5,6 @@ def reverseString(string):
 def reverseStringHelper(reversedString, index, originalString):
     if index >= len(originalString): return reversedString
     return reverseStringHelper(originalString[index] + reversedString, index + 1, originalString)
+
+# Shinyaさんの解答
+# https://recursionist.io/dashboard/problems/submissions/32267
