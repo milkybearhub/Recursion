@@ -20,6 +20,11 @@ class Line:
             return None  # y軸に平行
         return (self.endPoint.y - self.startPoint.y) / (self.endPoint.x - self.startPoint.x)
 
+    def deltaX(self):
+        return abs(self.endPoint.x - self.startPoint.x)
+    
+    def deltaY(self):
+        return abs(self.endPoint.y - self.startPoint.y)
 
 class QuadrilateralShape:
     def __init__(self, lineA, lineB, lineC, lineD):
@@ -28,7 +33,7 @@ class QuadrilateralShape:
         self.lineC = lineC
         self.lineD = lineD
 
-    # 四角形の名称を返す
+    # 四辺形の名称を返す
     def getShapeType(self):
         if self.atLeastZeroLineLength() or self.atLeastOneCollinear():
             return "not a quadrilateral"
@@ -67,14 +72,14 @@ class QuadrilateralShape:
             self.getAngle("ADC"), self.getAngle("BCD"))
         return 0 in all_angle or 180 in all_angle
 
-    # 四角形の周囲の長さを返す
+    # 四辺形の周囲の長さを返す
     def getPerimeter(self):
         return (self.lineA.getLength() +
                 self.lineB.getLength() +
                 self.lineC.getLength() +
                 self.lineD.getLength())
 
-    # 四角形の面積を返す
+    # 四辺形の面積を返す
     def getArea(self):
         if self.getShapeType() in ("square(正方形)", "rectangle(長方形)"):
             return self.lineA.getLength() * self.lineB.getLength()
@@ -86,7 +91,7 @@ class QuadrilateralShape:
             return (self.lineC.getLength() + self.lineA.getLength()) * (self.lineD.startPoint.y - self.lineD.endPoint.y) / 2
         if self.getShapeType() == "kite(凧)":
             return (self.lineC.startPoint.y - self.lineA.startPoint.y) * (self.lineB.startPoint.x - self.lineD.startPoint.x) / 2
-        return "四角形でないため面積を算出できません。"
+        return "四辺形でないため面積を算出できません。"
 
     # BAD、ABC、ADC、BCDの角度を返す
     def getAngle(self, angleString):
@@ -117,154 +122,70 @@ class QuadrilateralShape:
 
     # 四辺形をテキストとして描画する
     def draw(self):
-        if self.getShapeType() == "square(正方形)": return self.drawSquare()
-        if self.getShapeType() == "rectangle(長方形)": return self.drawRectangle()
-        if self.getShapeType() == "parallelogram(平行四辺形)": return self.drawParallelogram()
-        if self.getShapeType() == "trapezoid(台形)": return self.drawTrapezoid()
-        return print("描画に対応していない四辺形です。")
+        if ((self.getAngle("BAD") not in (45, 90, 135)) or
+            (self.getAngle("ABC") not in (45, 90, 135)) or
+            (self.getAngle("ADC") not in (45, 90, 135)) or
+            (self.getAngle("BCD") not in (45, 90, 135))):
+            return print("描画に対応していない四辺形です。")
 
-    # 正方形の描画
-    def drawSquare(self):
-        length_line_a = round(self.lineA.getLength())
-        print("　　" + "﹍　" * length_line_a + "　　")
-        for _ in range(length_line_a):
-            print("｜" + "　" * length_line_a * 2 + "　｜")
-        print("　　" + "﹉　" * length_line_a + "　　")
+        map_size = self.createMap()
+        self.replaceLine(map_size, lineA)
+        self.replaceLine(map_size, lineB)
+        self.replaceLine(map_size, lineC)
+        self.replaceLine(map_size, lineD)
+        for row in map_size[::-1]:
+            for dot in row:
+                print(dot, end="")
+            print("")
 
-    # 長方形の描画
-    def drawRectangle(self):
-        width = round(self.lineA.getLength())
-        height = round(self.lineB.getLength())
-        print("　　" + "﹍　" * width + "　　")
-        for _ in range(height):
-            print("｜" + "　" * width * 2 + "　｜")
-        print("　　" + "﹉　" * width + "　　")
+    def createMap(self):
+        # 描画の都合で両端を拡張するため+2
+        width = (max([self.lineA.endPoint.x, self.lineC.startPoint.x]) -
+                 min([self.lineA.startPoint.x, self.lineD.startPoint.x])) + 2
+        height = (max([self.lineB.endPoint.y, self.lineD.startPoint.y]) -
+                  min([self.lineA.startPoint.y, self.lineB.startPoint.y])) + 2
+        return [["　　"] * width for i in range(height)]
 
-    # 平行四辺形の描画
-    def drawParallelogram(self):
-        if self.getAngle("BAD") not in (45, 135):
-            return print("描画に対応していない平行四辺形です。")
+    # 空のマップを辺に置換する
+    def replaceLine(self, map_size, line):
+        if line.deltaX() == 0:
+            for i in range(line.deltaY()):
+                if line.startPoint.x == 0:
+                    map_size[line.endPoint.y+i+1][line.startPoint.x] = "｜　"
+                else:
+                    map_size[line.startPoint.y+i+1][line.startPoint.x+1] = "｜"
+        else:
+            for i in range(line.deltaX()):
+                if line.getSlope() == -1:
+                    if line == lineA:
+                        map_size[i+1][line.endPoint.x-i] = "＼　"
+                    elif line == lineB:
+                        map_size[line.startPoint.y+i +
+                                 1][line.startPoint.x-i] = "＼　"
+                    elif line == lineC:
+                        map_size[line.startPoint.y +
+                                 i+1][line.startPoint.x-i] = "＼　"
+                    elif line == lineD:
+                        map_size[i+1][line.deltaX()-i] = "＼　"
+                elif line.getSlope() == 0:
+                    if line == lineA:
+                        map_size[line.startPoint.y][line.startPoint.x+i+1] = "﹉　"
+                    else: # lineC
+                        map_size[line.endPoint.y+1][line.endPoint.x+i+1] = "﹍　"
+                elif line.getSlope() == 1:
+                    if line == lineD:
+                        map_size[i+1][line.endPoint.x+i+1] = "／　"
+                    elif line == lineB:
+                        map_size[line.startPoint.y+i+1][line.endPoint.x+i-1] = "／　"
+                    elif line == lineA:
+                        map_size[line.endPoint.x+i-1][line.startPoint.y+i +
+                                                    1] = "／　"
+                    else: # lineC
+                        map_size[line.endPoint.y+i+1][line.endPoint.x+i +
+                                 1] = "／　"
+        return map_size
 
-        if self.getAngle("ADC") == 45:
-            # x軸に平行な辺がある場合
-            if self.lineC.startPoint.y == self.lineC.endPoint.y:
-                return self.drawParallelogram1()
-            # y軸に平行な辺がある場合
-            if self.lineD.startPoint.x == self.lineD.endPoint.x:
-                return self.drawParallelogram2()
-
-        if self.getAngle("ADC") == 135:
-            # x軸に平行な辺がある場合
-            if self.lineC.startPoint.y == self.lineC.endPoint.y:
-                return self.drawParallelogram3()
-            # y軸に平行な辺がある場合
-            if self.lineD.startPoint.x == self.lineD.endPoint.x:
-                return self.drawParallelogram4()
-
-    # 角ADCが45°かつx軸に平行な辺がある平行四辺形
-    def drawParallelogram1(self):
-        width = round(self.lineC.getLength())
-        height = round(self.lineD.startPoint.y - self.lineD.endPoint.y)
-        print("﹍　" * width)
-        for i in range(height):
-            print("　　" * i + "＼　" + "　" * width + "　＼")
-        print("　" * height + "　﹉" * width)
-    
-    # 角ADCが45°かつy軸に平行な辺がある平行四辺形
-    def drawParallelogram2(self):
-        width = round(self.lineA.endPoint.x - self.lineA.startPoint.x)
-        delta_y = self.lineC.endPoint.y - self.lineC.startPoint.y
-        for i in range(delta_y):
-            print("｜　" + "　　" * i + "＼　" + "　" * width)
-        for i in range(delta_y):
-            print("｜　" + "　　" * width + "｜")
-        for i in range(delta_y):
-            print("　　" + "　　"*i + "＼　" + "　　" * (width-i-1) + "｜")
-
-    # 角ADCが135°かつx軸に平行な辺がある平行四辺形
-    def drawParallelogram3(self):
-        width = round(self.lineA.getLength())
-        height = round(self.lineB.endPoint.y - self.lineB.startPoint.y)
-        print("　　" * height + "﹍　" * width)
-        for i in range(1, height+1):
-            print("　　" * (height-i) + "／　" + "　　" * (width-1) + "／")
-        print("﹉　" * width)
-
-    # 角ADCが135°かつy軸に平行な辺がある平行四辺形
-    def drawParallelogram4(self):
-        width = self.lineA.endPoint.x - self.lineA.startPoint.x
-        delta_y = self.lineA.endPoint.y - self.lineA.startPoint.y
-        for i in range(delta_y):
-            print("　　" + "　　" * (width-i-1) + "／　" + "　　" * i + "｜")
-        for i in range(delta_y):
-            print("｜　" + "　　" * width + "｜")
-        for i in range(delta_y):
-            print("｜　" + "　　" * (width-i-1) + "／　" + "　　" * i)
-
-    # 台形の描画
-    def drawTrapezoid(self):
-        if self.getAngle("ADC") not in (45, 90, 135):
-            return "描画に対応していない台形です。"
-
-        # 等脚台形の描画
-        if self.getAngle("ADC") == 45:
-            # x軸に平行な辺がある場合
-            if self.lineC.startPoint.y == self.lineC.endPoint.y:
-                return self.drawTrapezoid1()
-            # y軸に平行な辺がある場合
-            if self.lineD.startPoint.x == self.lineD.endPoint.x:
-                return self.drawTrapezoid2()
-
-        if self.getAngle("ADC") == 135:
-            # x軸に平行な辺がある場合
-            if self.lineC.startPoint.y == self.lineC.endPoint.y:
-                return self.drawTrapezoid3()
-            # y軸に平行な辺がある場合
-            if self.lineD.startPoint.x == self.lineD.endPoint.x:
-                return self.drawTrapezoid4()
-
-        # TODO: 直角台形の描画
-
-    # 角ADCが45°かつx軸に平行な辺がある等脚台形
-    def drawTrapezoid1(self):
-        delta_x = abs(self.lineD.startPoint.x - self.lineD.endPoint.x)
-        print("﹍　" * round(self.lineC.getLength()))
-        for i in reversed(range(delta_x)):
-            print("　　" * (delta_x-i-1) + "＼" + "　　" *
-                  (round(self.lineA.getLength()) * (i+1)) + "　／")
-        print("　　" * delta_x + "﹉　" * round(self.lineA.getLength()))
-
-    # 角ADCが45°かつy軸に平行な辺がある等脚台形
-    def drawTrapezoid2(self):
-        height = abs(self.lineA.endPoint.x - self.lineA.startPoint.x)
-        delta_y = abs(self.lineC.endPoint.y - self.lineC.startPoint.y)
-        for i in range(delta_y):
-            print("｜　" + "　　" * i + "＼")
-        for i in range(round(self.lineB.getLength())):
-            print("｜　" + "　　" * height + "｜")
-        for i in range(delta_y):
-            print("｜　" + "　　" * (height-i-1) + "／　" + "　　" * i)
-
-    # 角ADCが135°かつx軸に平行な辺がある等脚台形
-    def drawTrapezoid3(self):
-        delta_x = abs(self.lineD.startPoint.x - self.lineD.endPoint.x)
-        print("　　" * delta_x + "﹍　" * round(self.lineC.getLength()))
-        for i in range(delta_x):
-            print("　　" * (delta_x-i-1) + "／" + "　　" * (round(self.lineC.getLength()) * (i+1)) + "　＼")
-        print("﹉　" * round(self.lineA.getLength()))
-
-    # 角ADCが135°かつy軸に平行な辺がある等脚台形
-    def drawTrapezoid4(self):
-        height = abs(self.lineA.endPoint.x - self.lineA.startPoint.x)
-        delta_y = abs(self.lineC.startPoint.y - self.lineC.endPoint.y)
-        for i in range(delta_y):
-            print("　　" + "　　" * (height-i-1) + "／　" + "　　" * i + "｜")
-        for i in range(round(self.lineD.getLength())):
-            print("｜　" + "　　" * height + "｜")
-        for i in range(delta_y):
-            print("　　" + "　　"*i + "＼　" + "　　" * (height-i-1) + "｜")
-
-    # 四角形の情報をターミナルに出力
+    # 四辺形の情報をターミナルに出力
     def printInfo(self):
         return print(
             f"名称：{self.getShapeType()}\n",
@@ -278,7 +199,6 @@ class QuadrilateralShape:
 
 
 # square（正方形）
-#
 # 　　﹍　﹍　﹍　﹍　﹍　　
 # ｜　　　　　　　　　　　｜
 # ｜　　　　　　　　　　　｜
@@ -307,7 +227,7 @@ lineB = Line(Point(8, 0), Point(8, 5))
 lineC = Line(Point(8, 5), Point(0, 5))
 lineD = Line(Point(0, 5), Point(0, 0))
 quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
-quadrilateral.printInfo()
+quadrilateral.printInfo() 
 quadrilateral.draw()
 
 # 平行四辺形1
@@ -319,13 +239,12 @@ quadrilateral.draw()
 # ｜　　　／　　
 # ｜　／　
 #
-# ｜
 # ｜　＼
 # ｜　　　＼
 # ｜　　　　　｜
+# ｜　　　　　｜
 # 　　＼　　　｜　
 # 　　　　＼　｜　
-# 　　　　　　｜
 # 
 lineA = Line(Point(0, 0), Point(2, 2))
 lineB = Line(Point(2, 2), Point(2, 6))
@@ -351,10 +270,10 @@ quadrilateral.draw()
 # ／　　　　　　　／　　　　
 # ﹉　﹉　﹉　﹉　　
 #
-# ﹍　﹍　﹍　﹍
-# ＼　　　　　　＼　　
-# 　　＼　　　　　　＼　　　　
-# 　　　﹉　﹉　﹉　﹉
+# 　　﹍　﹍　﹍　﹍　　　　　　　
+# 　　＼　　　　　　　＼　　　　　
+# 　　　　＼　　　　　　　＼　　　
+# 　　　　　　﹉　﹉　﹉　﹉　
 lineA = Line(Point(0, 0), Point(4, 0))
 lineB = Line(Point(4, 0), Point(6, 2))
 lineC = Line(Point(6, 2), Point(2, 2))
@@ -384,12 +303,12 @@ quadrilateral=QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
-# ｜　＼
-# ｜　　　＼
-# ｜　　　　　｜
-# ｜　　　　　｜
-# ｜　　　／　
-# ｜　／　　
+# # ｜　＼
+# # ｜　　　＼
+# # ｜　　　　　｜
+# # ｜　　　　　｜
+# # ｜　　　／　
+# # ｜　／　　
 lineA = Line(Point(0, 0), Point(2, 2))
 lineB = Line(Point(2, 2), Point(2, 4))
 lineC = Line(Point(2, 4), Point(0, 6))
@@ -402,10 +321,10 @@ quadrilateral.draw()
 # ＼　　　　　　　　　／
 # 　　＼　　　　　／
 # 　　　　﹉　﹉　
-lineA = Line(Point(0, 0), Point(2, 0))
-lineB = Line(Point(2, 0), Point(4, 2))
-lineC = Line(Point(4, 2), Point(-2, 2))
-lineD = Line(Point(-2, 2), Point(0, 0))
+lineA = Line(Point(2, 0), Point(4, 0))
+lineB = Line(Point(4, 0), Point(6, 2))
+lineC = Line(Point(6, 2), Point(0, 2))
+lineD = Line(Point(0, 2), Point(2, 0))
 quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
@@ -416,14 +335,20 @@ quadrilateral.draw()
 # ｜　　　　　｜
 # 　　＼　　　｜
 # 　　　　＼　｜
-lineA = Line(Point(0, 0), Point(2, -2))
-lineB = Line(Point(2, -2), Point(2, 4))
-lineC = Line(Point(2, 4), Point(0, 2))
-lineD = Line(Point(0, 2), Point(0, 0))
+lineA = Line(Point(0, 2), Point(2, 0))
+lineB = Line(Point(2, 0), Point(2, 6))
+lineC = Line(Point(2, 6), Point(0, 4))
+lineD = Line(Point(0, 4), Point(0, 2))
 quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
+# 直角台形
+# 　　﹍　﹍　﹍　　　　　　　　　
+# ｜　　　　　　　＼　　　　　　　
+# ｜　　　　　　　　　＼　　　　　
+# ｜　　　　　　　　　　　＼　
+# 　　﹉　﹉　﹉　﹉　﹉　﹉　　
 lineA = Line(Point(0, 0), Point(6, 0))
 lineB = Line(Point(6, 0), Point(3, 3))
 lineC = Line(Point(3, 3), Point(0, 3))
@@ -432,11 +357,79 @@ quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
-# 凧
+# 　　　　　　　　﹍　﹍　﹍　　　
+# 　　　　　　／　　　　　　　｜
+# 　　　　／　　　　　　　　　｜
+# 　　／　　　　　　　　　　　｜
+# 　　﹉　﹉　﹉　﹉　﹉　﹉　　　
+lineA = Line(Point(0, 0), Point(6, 0))
+lineB = Line(Point(6, 0), Point(6, 3))
+lineC = Line(Point(6, 3), Point(3, 3))
+lineD = Line(Point(3, 3), Point(0, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# 　　　　　　／　｜
+# 　　　　／　　　｜
+# 　　／　　　　　｜
+# ｜　　　　　　　｜
+# ｜　　　　　　　｜
+# ｜　　　　　　　｜
+# 　　﹉　﹉　﹉　　　
+lineA = Line(Point(0, 0), Point(3, 0))
+lineB = Line(Point(3, 0), Point(3, 6))
+lineC = Line(Point(3, 6), Point(0, 3))
+lineD = Line(Point(0, 3), Point(0, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# ｜　＼　　　　　　　
+# ｜　　　＼　　　　　
+# ｜　　　　　＼　　　
+# ｜　　　　　　　｜
+# ｜　　　　　　　｜
+# ｜　　　　　　　｜
+# 　　﹉　﹉　﹉　　
+lineA = Line(Point(0, 0), Point(3, 0))
+lineB = Line(Point(3, 0), Point(3, 3))
+lineC = Line(Point(3, 3), Point(0, 6))
+lineD = Line(Point(0, 6), Point(0, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# 　　﹍　﹍　﹍　　　
+# ｜　　　　　　　｜
+# ｜　　　　　　　｜
+# ｜　　　　　　　｜
+# 　　＼　　　　　｜
+# 　　　　＼　　　｜
+# 　　　　　　＼　｜
+# 　　　　　　　　　　
+lineA = Line(Point(0, 3), Point(3, 0))
+lineB = Line(Point(3, 0), Point(3, 6))
+lineC = Line(Point(3, 6), Point(0, 6))
+lineD = Line(Point(0, 6), Point(0, 3))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# # 凧
 lineA = Line(Point(0, 0), Point(5, 3))
 lineB = Line(Point(5, 3), Point(0, 8))
 lineC = Line(Point(0, 8), Point(-5, 3))
 lineD = Line(Point(-5, 3), Point(0, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# # 四辺形ではない
+lineA = Line(Point(1, 1), Point(2, 2))
+lineB = Line(Point(2, 2), Point(3, 3))
+lineC = Line(Point(3, 3), Point(4, 4))
+lineD = Line(Point(4, 4), Point(1, 1))
 quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
