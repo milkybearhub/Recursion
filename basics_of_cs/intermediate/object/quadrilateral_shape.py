@@ -88,10 +88,17 @@ class QuadrilateralShape:
         if self.getShapeType() == "parallelogram(平行四辺形)":
             return (self.lineA.endPoint.x - self.lineA.startPoint.x) * (self.lineB.endPoint.y - self.lineB.startPoint.y)
         if self.getShapeType() == "trapezoid(台形)":
-            return (self.lineC.getLength() + self.lineA.getLength()) * (self.lineD.startPoint.y - self.lineD.endPoint.y) / 2
+            return self.getTrapezoidArea()
         if self.getShapeType() == "kite(凧)":
             return (self.lineC.startPoint.y - self.lineA.startPoint.y) * (self.lineB.startPoint.x - self.lineD.startPoint.x) / 2
         return "四辺形でないため面積を算出できません。"
+
+    # 台形の面積を返す
+    def getTrapezoidArea(self):
+        if self.lineA.getSlope() == self.lineC.getSlope():
+            return (self.lineC.getLength() + self.lineA.getLength()) * self.lineD.deltaY() / 2
+        else:
+            return (self.lineD.getLength() + self.lineB.getLength()) * self.lineA.deltaX() / 2
 
     # BAD、ABC、ADC、BCDの角度を返す
     def getAngle(self, angleString):
