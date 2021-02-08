@@ -84,7 +84,7 @@ class QuadrilateralShape:
         if self.getShapeType() in ("square(正方形)", "rectangle(長方形)"):
             return self.lineA.getLength() * self.lineB.getLength()
         if self.getShapeType() == "rhombus(ひし形)":
-            return # 対角線 * 対角線 / 2
+            return self.getRhombusArea()
         if self.getShapeType() == "parallelogram(平行四辺形)":
             return (self.lineA.endPoint.x - self.lineA.startPoint.x) * (self.lineB.endPoint.y - self.lineB.startPoint.y)
         if self.getShapeType() == "trapezoid(台形)":
@@ -92,6 +92,16 @@ class QuadrilateralShape:
         if self.getShapeType() == "kite(凧)":
             return (self.lineC.startPoint.y - self.lineA.startPoint.y) * (self.lineB.startPoint.x - self.lineD.startPoint.x) / 2
         return "四辺形でないため面積を算出できません。"
+
+    # ひし形の面積を返す
+    def getRhombusArea(self):
+        line_ac = Line(
+            Point(self.lineA.startPoint.x, self.lineA.endPoint.y),
+            Point(self.lineC.startPoint.x, self.lineC.startPoint.y)) 
+        line_bc = Line(
+            Point(self.lineB.startPoint.x, self.lineB.endPoint.y),
+            Point(self.lineD.startPoint.x, self.lineD.startPoint.y)) 
+        return line_ac.getLength() * line_bc.getLength() / 2
 
     # 台形の面積を返す
     def getTrapezoidArea(self):
@@ -134,7 +144,7 @@ class QuadrilateralShape:
             (self.getAngle("ABC") not in CAN_DRAW_ANGLE) or
             (self.getAngle("ADC") not in CAN_DRAW_ANGLE) or
             (self.getAngle("BCD") not in CAN_DRAW_ANGLE)):
-            return print("描画に対応していない四辺形です。")
+            return print("描画に対応していない四辺形です。\n")
 
         map_size = self.createMap()
         self.replaceLine(map_size, lineA)
@@ -231,7 +241,16 @@ quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo() 
 quadrilateral.draw()
 
-# 平行四辺形1
+# rhombus(ひし形)
+lineA = Line(Point(0, 0), Point(5, 0))
+lineB = Line(Point(5, 0), Point(8, 4))
+lineC = Line(Point(8, 4), Point(3, 4))
+lineD = Line(Point(3, 4), Point(0, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo() 
+quadrilateral.draw()
+
+# parallelogram(平行四辺形)
 # 　　　　　　　
 # 　　　　／　｜
 # 　　／　　　｜
@@ -263,9 +282,6 @@ quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
-
-# 平行四辺形
-# parallelogram(平行四辺形)
 # 　　　　﹍　﹍　﹍　﹍　　
 # 　　／　　　　　　　／　　
 # ／　　　　　　　／　　　　
@@ -509,7 +525,7 @@ quadrilateral.printInfo()
 quadrilateral.draw()
 
 
-# # 凧
+# 凧
 lineA = Line(Point(0, 0), Point(5, 3))
 lineB = Line(Point(5, 3), Point(0, 8))
 lineC = Line(Point(0, 8), Point(-5, 3))
@@ -518,7 +534,7 @@ quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
-# # 四辺形ではない
+# 四辺形ではない
 lineA = Line(Point(1, 1), Point(2, 2))
 lineB = Line(Point(2, 2), Point(3, 3))
 lineC = Line(Point(3, 3), Point(4, 4))
