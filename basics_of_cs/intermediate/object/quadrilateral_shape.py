@@ -68,7 +68,7 @@ class QuadrilateralShape:
 
     # 同一座標の判定
     def atLeastZeroLineLength(self):
-       return  self.lineA or self.lineB or self.lineC or self.lineD == 0
+        self.lineA or self.lineB or self.lineC or self.lineD == 0
 
     # 3点が同一直線上に存在する判定
     def atLeastOneCollinear(self):
