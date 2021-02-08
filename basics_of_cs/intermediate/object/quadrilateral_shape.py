@@ -10,23 +10,28 @@ class Line:
     def __init__(self, startPoint, endPoint):
         self.startPoint = startPoint
         self.endPoint = endPoint
-    
+
+    # 辺の長さを返す
     def getLength(self):
         return math.sqrt((self.endPoint.x - self.startPoint.x)**2 +
                          (self.endPoint.y - self.startPoint.y)**2)
 
+    # 辺の傾きを返す
     def getSlope(self):
         if self.endPoint.x - self.startPoint.x  == 0:
             return None  # y軸に平行
         return (self.endPoint.y - self.startPoint.y) / (self.endPoint.x - self.startPoint.x)
 
+    # 辺のx座標の差を返す
     def deltaX(self):
         return abs(self.endPoint.x - self.startPoint.x)
-    
+
+    # 辺のy座標の差を返す
     def deltaY(self):
         return abs(self.endPoint.y - self.startPoint.y)
 
 class QuadrilateralShape:
+    # 前提：第1象限
     def __init__(self, lineA, lineB, lineC, lineD):
         self.lineA = lineA
         self.lineB = lineB
@@ -63,7 +68,7 @@ class QuadrilateralShape:
 
     # 同一座標の判定
     def atLeastZeroLineLength(self):
-        self.lineA or self.lineB or self.lineC or self.lineD == 0
+       return  self.lineA or self.lineB or self.lineC or self.lineD == 0
 
     # 3点が同一直線上に存在する判定
     def atLeastOneCollinear(self):
@@ -86,7 +91,7 @@ class QuadrilateralShape:
         if self.getShapeType() == "rhombus(ひし形)":
             return self.getRhombusArea()
         if self.getShapeType() == "parallelogram(平行四辺形)":
-            return (self.lineA.endPoint.x - self.lineA.startPoint.x) * (self.lineB.endPoint.y - self.lineB.startPoint.y)
+            return self.lineA.deltaX() * self.lineB.deltaY()
         if self.getShapeType() == "trapezoid(台形)":
             return self.getTrapezoidArea()
         if self.getShapeType() == "kite(凧)":
@@ -107,19 +112,19 @@ class QuadrilateralShape:
     def getTrapezoidArea(self):
         if self.lineA.getSlope() == self.lineC.getSlope():
             return (self.lineC.getLength() + self.lineA.getLength()) * self.lineD.deltaY() / 2
-        else:
-            return (self.lineD.getLength() + self.lineB.getLength()) * self.lineA.deltaX() / 2
+        return (self.lineD.getLength() + self.lineB.getLength()) * self.lineA.deltaX() / 2
 
     # BAD、ABC、ADC、BCDの角度を返す
     def getAngle(self, angleString):
         if angleString == "BAD":
             return self.calcAngle(self.lineA, self.lineD)
-        elif angleString == "ABC":
+        if angleString == "ABC":
             return self.calcAngle(self.lineB, self.lineA)
-        elif angleString == "ADC":
+        if angleString == "ADC":
             return self.calcAngle(self.lineD, self.lineC)
-        elif angleString == "BCD":
+        if angleString == "BCD":
             return self.calcAngle(self.lineC, self.lineB)
+        return "入力が誤っています。"
 
     # 角度の計算
     def calcAngle(self, line1, line2):
@@ -138,6 +143,9 @@ class QuadrilateralShape:
         return round(math.degrees(math.acos(cos)))
 
     # 四辺形をテキストとして描画する
+    # 1. マップを作成する
+    # 2. マップの下部から辺に置換する
+    # 3. マップを上部から出力する
     def draw(self):
         CAN_DRAW_ANGLE = (45, 90, 135)
         if ((self.getAngle("BAD") not in CAN_DRAW_ANGLE) or
@@ -156,6 +164,7 @@ class QuadrilateralShape:
                 print(dot, end="")
             print("")
 
+    # 描画のためにマップを作成する
     def createMap(self):
         # 描画の都合で上下両端を拡張するため+2
         width = (max([self.lineA.endPoint.x, self.lineC.startPoint.x]) -
@@ -184,7 +193,7 @@ class QuadrilateralShape:
                 elif line.getSlope() == 0:
                     if line == lineA:
                         map_size[line.startPoint.y][line.startPoint.x+i+1] = "﹉　"
-                    else: # lineC
+                    else:
                         map_size[line.endPoint.y+1][line.endPoint.x+i+1] = "﹍　"
                 elif line.getSlope() == 1:
                     if line == lineA or line == lineB:
@@ -193,7 +202,6 @@ class QuadrilateralShape:
                         map_size[line.endPoint.y+i+1][line.endPoint.x+i+1] = "／　"
                     else: # lineD
                         map_size[i+1][line.endPoint.x+i+1] = "／　"
-
         return map_size
 
     # 四辺形の情報をターミナルに出力
