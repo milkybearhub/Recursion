@@ -191,17 +191,15 @@ class QuadrilateralShape:
                     else: # lineD
                         map_size[i+1][line.deltaX()-i] = "＼　"
                 elif line.getSlope() == 0:
-                    if line == lineA:
+                    if line == lineA or line == lineB:
                         map_size[line.startPoint.y][line.startPoint.x+i+1] = "﹉　"
                     else:
                         map_size[line.endPoint.y+1][line.endPoint.x+i+1] = "﹍　"
                 elif line.getSlope() == 1:
                     if line == lineA or line == lineB:
                         map_size[line.startPoint.y+i+1][line.startPoint.x+i+1] = "／　"
-                    elif line == lineC:
+                    else: #  line == lineC or line == lineD:
                         map_size[line.endPoint.y+i+1][line.endPoint.x+i+1] = "／　"
-                    else: # lineD
-                        map_size[i+1][line.endPoint.x+i+1] = "／　"
         return map_size
 
     # 四辺形の情報をターミナルに出力
@@ -233,6 +231,19 @@ quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
+# 　　　　／　＼　　　　　
+# 　　／　　　　　＼　　　
+# 　　＼　　　　　／　　　
+# 　　　　＼　／　　　　　
+lineA = Line(Point(0, 2), Point(2, 0))
+lineB = Line(Point(2, 0), Point(4, 2))
+lineC = Line(Point(4, 2), Point(2, 4))
+lineD = Line(Point(2, 4), Point(0, 2))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+
 # rectangle（長方形）
 # 　　﹍　﹍　﹍　﹍　﹍　﹍　﹍　﹍　　
 # ｜　　　　　　　　　　　　　　　　　｜
@@ -245,6 +256,38 @@ lineA = Line(Point(0, 0), Point(8, 0))
 lineB = Line(Point(8, 0), Point(8, 5))
 lineC = Line(Point(8, 5), Point(0, 5))
 lineD = Line(Point(0, 5), Point(0, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo() 
+quadrilateral.draw()
+
+# 　　　　／　＼　　　　　　　　　　　　　
+# 　　／　　　　　＼　　　　　　　　　　　
+# 　　＼　　　　　　　＼　　　　　　　　　
+# 　　　　＼　　　　　　　＼　　　　　　　
+# 　　　　　　＼　　　　　　　＼　　　　　
+# 　　　　　　　　＼　　　　　　　＼　　　
+# 　　　　　　　　　　＼　　　　　／　　　
+# 　　　　　　　　　　　　＼　／　　
+lineA = Line(Point(0, 6), Point(6, 0))
+lineB = Line(Point(6, 0), Point(8, 2))
+lineC = Line(Point(8, 2), Point(2, 8))
+lineD = Line(Point(2, 8), Point(0, 6))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo() 
+quadrilateral.draw()
+
+# 　　　　　　　　　　　　／　＼　　　　　
+# 　　　　　　　　　　／　　　　　＼　　　
+# 　　　　　　　　／　　　　　　　／　　　
+# 　　　　　　／　　　　　　　／　　　　　
+# 　　　　／　　　　　　　／　　　　　　　
+# 　　／　　　　　　　／　　　　　　　　　
+# 　　＼　　　　　／　　　　　　　　　　　
+# 　　　　＼　／　　　
+lineA = Line(Point(0, 2), Point(2, 0))
+lineB = Line(Point(2, 0), Point(8, 6))
+lineC = Line(Point(8, 6), Point(6, 8))
+lineD = Line(Point(6, 8), Point(0, 2))
 quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo() 
 quadrilateral.draw()
@@ -357,6 +400,21 @@ quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
 
+# 　　﹍　﹍　﹍　　　　　　　　　
+# 　　＼　　　　　＼　　　　　　　
+# 　　　　＼　　　　　＼　　　　　
+# 　　　　　　＼　　　　　＼　　　
+# 　　　　　　　　＼　　　　　｜
+# 　　　　　　　　　　＼　　　｜
+# 　　　　　　　　　　　　＼　｜
+lineA = Line(Point(0, 6), Point(6, 0))
+lineB = Line(Point(6, 0), Point(6, 3))
+lineC = Line(Point(6, 3), Point(3, 6))
+lineD = Line(Point(3, 6), Point(0, 6))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
 # 　　﹍　﹍　﹍　﹍　﹍　﹍　　　
 # 　　＼　　　　　　　　　／　　　
 # 　　　　＼　　　　　／　　　　　
@@ -453,6 +511,30 @@ lineA = Line(Point(3, 0), Point(6, 3))
 lineB = Line(Point(6, 3), Point(6, 9))
 lineC = Line(Point(6, 9), Point(0, 3))
 lineD = Line(Point(0, 3), Point(3, 0))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# 　　﹍　﹍　﹍　﹍　　　　　　　　　　　
+# 　　＼　　　　　　　＼　　　　　　　　　
+# 　　　　＼　　　　　　　＼　　　　　　　
+# 　　　　　　＼　　　　　　　＼　　　　　
+# 　　　　　　　　＼　　　　　　　＼　　　
+# 　　　　　　　　　　＼　　　　　／　　　
+# 　　　　　　　　　　　　＼　／　　　　　
+lineA = Line(Point(0, 6), Point(6, 0))
+lineB = Line(Point(6, 0), Point(8, 2))
+lineC = Line(Point(8, 2), Point(4, 6))
+lineD = Line(Point(4, 6), Point(0, 6))
+quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
+quadrilateral.printInfo()
+quadrilateral.draw()
+
+# TODO
+lineA = Line(Point(0, 4), Point(4, 0))
+lineB = Line(Point(4, 0), Point(8, 0))
+lineC = Line(Point(8, 0), Point(2, 6))
+lineD = Line(Point(2, 6), Point(0, 4))
 quadrilateral = QuadrilateralShape(lineA, lineB, lineC, lineD)
 quadrilateral.printInfo()
 quadrilateral.draw()
