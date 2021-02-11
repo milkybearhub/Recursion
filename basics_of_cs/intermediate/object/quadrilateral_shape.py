@@ -193,12 +193,12 @@ class QuadrilateralShape:
                 elif line.getSlope() == 0:
                     if line == lineA or line == lineB:
                         map_size[line.startPoint.y][line.startPoint.x+i+1] = "﹉　"
-                    else:
+                    else: # line == lineC or line == lineD:
                         map_size[line.endPoint.y+1][line.endPoint.x+i+1] = "﹍　"
                 elif line.getSlope() == 1:
                     if line == lineA or line == lineB:
                         map_size[line.startPoint.y+i+1][line.startPoint.x+i+1] = "／　"
-                    else: #  line == lineC or line == lineD:
+                    else: # line == lineC or line == lineD:
                         map_size[line.endPoint.y+i+1][line.endPoint.x+i+1] = "／　"
         return map_size
 
